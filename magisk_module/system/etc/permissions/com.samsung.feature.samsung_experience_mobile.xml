@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <!-- Samsung Experience Mobile (One UI) System Features -->
+    <feature name="com.samsung.feature.samsung_experience_mobile" />
+    <feature name="com.sec.feature.samsung_experience_mobile" />
+</permissions>

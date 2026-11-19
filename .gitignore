@@ -1,0 +1,40 @@
+# Build outputs & generated artifacts
+build/
+bin/
+lsposed_module/build/
+lsposed_module/tools/
+lsposed_module/PhoneLinkXposed.apk
+*.apk
+*.zip
+*.dex
+*.jar
+*.class
+
+# Python & IDE caches
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+
+# Logs, dumps & databases
+ypc_logs/
+*.log
+*.db
+anr.txt
+c4_dump.txt
+sessions_found.txt
+clean_*.txt
+ypc_mirror_summary.txt
+
+# One-off reverse-engineering / analysis scripts in repo root
+analyze_ypc_log.py
+checkpoint_db.py
+check_*.py
+disasm*.py
+dump_*.py
+find_*.py
+inspect_*.py
+parse_*.py
+read_res.py
+search_strings.py
+update_lsposed_scope.py

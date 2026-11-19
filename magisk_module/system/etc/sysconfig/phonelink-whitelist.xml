@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    System Configuration Whitelist for Microsoft Link to Windows & Samsung MDX Service
+    Target Device: Xiaomi Mi 9 (cepheus)
+    Target OS: AOSP Project Infinity X (Android 16 / SDK 36)
+    Placement: /system/etc/sysconfig/phonelink-whitelist.xml
+    File Permissions: 0644 (root:root)
+    SELinux Context: u:object_r:system_file:s0
+
+    Enables 24/7 background notification sync, cross-device clipboard sync,
+    and instantaneous Phone Screen / App Streaming mirroring connections.
+-->
+<config>
+    <!-- =================================================================== -->
+    <!-- 1. Full Power & Doze Mode Exemptions (Deep Doze + Light Doze)       -->
+    <!-- Parsed by com.android.server.SystemConfig into mAllowInPowerSave.   -->
+    <!-- DeviceIdleController adds to mPowerSaveWhitelistApps.               -->
+    <!-- AppStandbyController promotes both packages to                      -->
+    <!-- STANDBY_BUCKET_EXEMPTED (bucket 5).                                 -->
+    <!-- Bypasses maintenance windows, alarm rate limits, and job batching. -->
+    <!-- =================================================================== -->
+    <allow-in-power-save package="com.samsung.android.mdx" />
+    <allow-in-power-save package="com.microsoft.appmanager" />
+
+    <!-- =================================================================== -->
+    <!-- 2. Power Save (Except Idle) Battery Saver Compatibility             -->
+    <!-- Parsed by SystemConfig into mAllowInPowerSaveExceptIdle.           -->
+    <!-- Guarantees background work retention during Battery Saver mode.     -->
+    <!-- =================================================================== -->
+    <allow-in-power-save-except-idle package="com.samsung.android.mdx" />
+    <allow-in-power-save-except-idle package="com.microsoft.appmanager" />
+
+    <!-- =================================================================== -->
+    <!-- 3. Data Saver & Metered Network Exemptions                          -->
+    <!-- Parsed into NetworkPolicyManagerService mDefaultDataSaverAllowlist. -->
+    <!-- Sets eBPF / iptables kernel rules to RULE_ALLOW_ALL.                -->
+    <!-- Prevents background socket freeze when Data Saver is active.       -->
+    <!-- Includes both test-suite tag (<allow-in-data-saver>) and upstream   -->
+    <!-- AOSP standard tag (<allow-in-data-usage-save>) for dual compatibility.-->
+    <!-- =================================================================== -->
+    <allow-in-data-saver package="com.samsung.android.mdx" />
+    <allow-in-data-saver package="com.microsoft.appmanager" />
+    <allow-in-data-usage-save package="com.samsung.android.mdx" />
+    <allow-in-data-usage-save package="com.microsoft.appmanager" />
+
+    <!-- =================================================================== -->
+    <!-- 4. Location Throttling Exemptions                                   -->
+    <!-- Parsed by SystemConfig into mAllowUnthrottledLocation.              -->
+    <!-- LocationManagerService exempts packages from background GPS/Wi-Fi   -->
+    <!-- rate limiting for seamless Bluetooth LE and local network discovery.-->
+    <!-- =================================================================== -->
+    <allow-unthrottled-location package="com.samsung.android.mdx" />
+    <allow-unthrottled-location package="com.microsoft.appmanager" />
+</config>

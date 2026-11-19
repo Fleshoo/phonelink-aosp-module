@@ -1,0 +1,17 @@
+# SELinux Policy Rules for Phone Link Module
+# Loaded automatically by Magisk during boot (post-fs-data)
+
+# Allow priv_app and companion apps to access /dev/uinput and /dev/uhid
+allow priv_app uinput_device chr_file { read write open ioctl getattr }
+allow system_app uinput_device chr_file { read write open ioctl getattr }
+allow platform_app uinput_device chr_file { read write open ioctl getattr }
+allow priv_app uhid_device chr_file { read write open ioctl getattr }
+allow system_app uhid_device chr_file { read write open ioctl getattr }
+allow platform_app uhid_device chr_file { read write open ioctl getattr }
+
+# Allow priv_app to interact with system input and surfaceflinger services
+allow priv_app input_service service_manager find
+allow priv_app surfaceflinger service_manager find
+
+# Allow priv_app code execution within its data directory
+allow priv_app privapp_data_file file { execute execute_no_trans }

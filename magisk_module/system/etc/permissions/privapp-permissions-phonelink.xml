@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <!-- Privileged Permissions Whitelist for Samsung MDX (Link to Windows Service) -->
+    <privapp-permissions package="com.samsung.android.mdx">
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+        <permission name="android.permission.INTERACT_ACROSS_USERS"/>
+        <permission name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+        <permission name="android.permission.BATTERY_STATS"/>
+        <permission name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+        <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND"/>
+        <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+        <permission name="android.permission.MANAGE_USERS"/>
+        <permission name="android.permission.MANAGE_ACTIVITY_STACKS"/>
+        <permission name="android.permission.MANAGE_NOTIFICATIONS"/>
+        <permission name="android.permission.CONTROL_KEYGUARD"/>
+        <permission name="android.permission.STATUS_BAR_SERVICE"/>
+        <permission name="android.permission.CAPTURE_AUDIO_OUTPUT"/>
+        <permission name="android.permission.CAPTURE_MEDIA_OUTPUT"/>
+        <permission name="android.permission.MODIFY_AUDIO_ROUTING"/>
+        <permission name="android.permission.OVERRIDE_WIFI_CONFIG"/>
+        <permission name="android.permission.STOP_APP_SWITCHES"/>
+        <permission name="android.permission.ACCESS_KEYGUARD_SECURE_STORAGE"/>
+        <permission name="android.permission.READ_CLIPBOARD_IN_BACKGROUND"/>
+        <permission name="android.permission.CREATE_VIRTUAL_DEVICE"/>
+        <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY"/>
+        <permission name="android.permission.ADD_TRUSTED_DISPLAY"/>
+        <permission name="android.permission.MANAGE_MEDIA_PROJECTION"/>
+        <permission name="android.permission.CAPTURE_VIDEO_OUTPUT"/>
+        <permission name="android.permission.ACCESS_INSTANT_APPS"/>
+        <permission name="android.permission.READ_SEARCH_INDEXABLES"/>
+    </privapp-permissions>
+
+    <!-- Privileged Permissions Whitelist for Microsoft Link to Windows -->
+    <privapp-permissions package="com.microsoft.appmanager">
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+        <permission name="android.permission.INTERACT_ACROSS_USERS"/>
+        <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND"/>
+        <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE"/>
+        <permission name="android.permission.MANAGE_USERS"/>
+        <permission name="android.permission.BATTERY_STATS"/>
+    </privapp-permissions>
+</permissions>

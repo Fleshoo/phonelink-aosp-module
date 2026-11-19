@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Link to Windows LSPosed Bridge</string>
+    <string name="xposed_description">Enables Samsung Link to Windows on AOSP Android 16 with screen mirroring and input injection</string>
+</resources>

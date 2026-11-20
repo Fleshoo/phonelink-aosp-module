@@ -43,19 +43,19 @@ from magisk_module.build_magisk import (
 
 
 class TestGenuineMagiskZipPackaging(unittest.TestCase):
-    """Verifies that genuine PhoneLinkMagisk-v2.0.0.zip satisfies all production criteria."""
+    """Verifies that genuine PhoneLinkMagisk-v2.1.0.zip satisfies all production criteria."""
 
     @classmethod
     def setUpClass(cls):
-        cls.zip_path = PROJECT_ROOT / "build" / "PhoneLinkMagisk-v2.0.0.zip"
+        cls.zip_path = PROJECT_ROOT / "build" / "PhoneLinkMagisk-v2.1.0.zip"
         if not cls.zip_path.is_file():
             # Check fallback in magisk_module
-            fallback = PROJECT_ROOT / "magisk_module" / "PhoneLinkMagisk-v2.0.0.zip"
+            fallback = PROJECT_ROOT / "magisk_module" / "PhoneLinkMagisk-v2.1.0.zip"
             if fallback.is_file():
                 cls.zip_path = fallback
 
     def test_genuine_zip_exists_and_is_valid_archive(self):
-        self.assertTrue(self.zip_path.is_file(), f"PhoneLinkMagisk-v2.0.0.zip not found at {self.zip_path}")
+        self.assertTrue(self.zip_path.is_file(), f"PhoneLinkMagisk-v2.1.0.zip not found at {self.zip_path}")
         self.assertTrue(zipfile.is_zipfile(self.zip_path), "File is not a valid ZIP archive")
 
     def test_genuine_zip_packaging_validator_approval(self):
@@ -70,8 +70,8 @@ class TestGenuineMagiskZipPackaging(unittest.TestCase):
             valid_prop, props, missing_keys = PackagingValidator.validate_module_prop(prop_content)
             self.assertTrue(valid_prop, f"Genuine module.prop failed check. Missing keys: {missing_keys}")
             self.assertEqual(props["id"], "phonelink_module")
-            self.assertEqual(props["version"], "v2.0.0")
-            self.assertEqual(props["versionCode"], "200")
+            self.assertEqual(props["version"], "v2.1.0")
+            self.assertEqual(props["versionCode"], "210")
 
             # Validate privapp XML
             privapp_xml = z.read("system/etc/permissions/privapp-permissions-phonelink.xml").decode("utf-8")

@@ -2,7 +2,7 @@
 """
 build.py - Master Build Orchestrator for Phone Link Port (Xiaomi Mi 9 / Android 16)
 Orchestrates:
-1. Magisk Module packaging (PhoneLinkMagisk-v2.0.0.zip) via magisk_module/build_magisk.py
+1. Magisk Module packaging (PhoneLinkMagisk-v2.1.0.zip) via magisk_module/build_magisk.py
 2. LSPosed APK compilation & packaging (PhoneLinkXposed.apk) via lsposed_module/build_lsposed.py
 3. Unified release delivery to build/ directory
 4. PackagingValidator binary & schema integrity assertions
@@ -26,7 +26,7 @@ LSPOSED_DIR = REPO_ROOT / "lsposed_module"
 TESTS_DIR = REPO_ROOT / "tests"
 
 # Target deliverables in build/
-MAGISK_ZIP_NAME = "PhoneLinkMagisk-v2.0.0.zip"
+MAGISK_ZIP_NAME = "PhoneLinkMagisk-v2.1.0.zip"
 LSPOSED_APK_NAME = "PhoneLinkXposed.apk"
 CHECKSUM_FILE_NAME = "SHA256SUMS.txt"
 

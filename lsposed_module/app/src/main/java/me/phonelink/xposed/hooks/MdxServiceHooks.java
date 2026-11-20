@@ -6,6 +6,7 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.graphics.PixelFormat;
 import android.media.projection.MediaProjection;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -15,6 +16,7 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.view.Surface;
 import android.view.WindowManager;
+import java.util.HashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -269,6 +271,16 @@ public class MdxServiceHooks {
                             Surface argSurface = (Surface) param.args[5];
                             final Object clientCallback = param.args[6];
                             Surface cachedSurface = (Surface) XposedHelpers.getObjectField(service, "e");
+                            if (cachedSurface != null) {
+                                try {
+                                    if (!Boolean.TRUE.equals(XposedHelpers.callMethod(cachedSurface, "isValid"))) {
+                                        cachedSurface = null;
+                                        XposedHelpers.setObjectField(service, "e", null);
+                                    }
+                                } catch (Throwable t) {
+                                    cachedSurface = null;
+                                }
+                            }
                             Surface surface = argSurface != null ? argSurface : cachedSurface;
 
                             XposedLog.i(TAG, "createVirtualDisplay requested: " + name + " " + width + "x" + height + " @" + densityDpi + "dpi surface=" + surface);
@@ -472,6 +484,7 @@ public class MdxServiceHooks {
                             try {
                                 Object service = XposedHelpers.getObjectField(param.thisObject, "b");
                                 if (service != null) {
+                                    XposedHelpers.setObjectField(service, "e", null);
                                     VirtualDisplay curVd = (VirtualDisplay) XposedHelpers.getObjectField(service, "d");
                                     if (curVd != null && curVd.getDisplay() != null) {
                                         InputInjectionHooks.onDisplayRemoved(curVd.getDisplay().getDisplayId());
@@ -1298,20 +1311,118 @@ public class MdxServiceHooks {
                         }
                     }
                 });
-                XposedLog.i(TAG, "Hooked AppExecutionContainerService (a -> true, c -> true, forced i=true)");
+                XposedBridge.hookAllMethods(appExecClass, "onUnbind", new XC_MethodReplacement() {
+                    @Override
+                    protected Object replaceHookedMethod(MethodHookParam param) {
+                        try {
+                            return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args);
+                        } catch (Throwable t) {
+                            XposedLog.w(TAG, "Guarded AppExecutionContainerService.onUnbind crash: " + t.getMessage());
+                            try {
+                                Object callerTracker = XposedHelpers.getObjectField(param.thisObject, "e");
+                                if (callerTracker != null) {
+                                    XposedHelpers.callMethod(callerTracker, "clear");
+                                }
+                            } catch (Throwable ignored) {}
+                            return Boolean.FALSE;
+                        }
+                    }
+                });
+                XposedLog.i(TAG, "Hooked AppExecutionContainerService (a -> true, c -> true, forced i=true, guarded onUnbind)");
             }
         } catch (Throwable t) {
             XposedLog.w(TAG, "Failed to hook AppExecutionContainerService: " + t.getMessage());
         }
 
         try {
+            Class<?> m1pClass = findClassSafe(cl, "m1.p", "Lm1.p;");
+            if (m1pClass != null) {
+                XposedBridge.hookAllMethods(m1pClass, "closeAll", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        if (ensureMirroringStateRepo(cl, param.thisObject) != null) {
+                            return;
+                        }
+                        safelyClearContainers(param.thisObject);
+                        param.setResult(null);
+                    }
+                });
+                XposedBridge.hookAllMethods(m1pClass, "close", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        if (ensureMirroringStateRepo(cl, param.thisObject) == null) {
+                            param.setResult(null);
+                        }
+                    }
+                });
+                XposedBridge.hookAllMethods(m1pClass, "deinit", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        ensureMirroringStateRepo(cl, param.thisObject);
+                        try {
+                            if (XposedHelpers.getObjectField(param.thisObject, "j") != null
+                                && XposedHelpers.getObjectField(param.thisObject, "d") != null) {
+                                return;
+                            }
+                            Object repo = ensureMirroringStateRepo(cl, param.thisObject);
+                            safelyClearContainers(param.thisObject);
+                            if (repo != null) {
+                                XposedHelpers.callMethod(repo, "setAppMirroringRunning", false);
+                            }
+                        } catch (Throwable t) {
+                            XposedLog.w(TAG, "Guarded m1.p.deinit on uninitialized manager: " + t.getMessage());
+                        }
+                        param.setResult(null);
+                    }
+                });
+                XposedLog.i(TAG, "Hooked m1.p close/closeAll/deinit null-state guards");
+            }
+        } catch (Throwable t) {
+            XposedLog.w(TAG, "Failed to hook m1.p lifecycle guards: " + t.getMessage());
+        }
+
+        try {
             Class<?> l1bClass = findClassSafe(cl, "l1.b", "Ll1.b;");
             if (l1bClass != null) {
                 XposedBridge.hookAllMethods(l1bClass, "init", XC_MethodReplacement.returnConstant(Boolean.TRUE));
-                XposedLog.i(TAG, "Hooked l1.b.init -> return true");
+                XposedBridge.hookAllMethods(l1bClass, "deinit", new XC_MethodReplacement() {
+                    @Override
+                    protected Object replaceHookedMethod(MethodHookParam param) {
+                        try {
+                            Class<?> m1pClass = findClassSafe(cl, "m1.p", "Lm1.p;");
+                            if (m1pClass != null) {
+                                Object mgr = XposedHelpers.callStaticMethod(m1pClass, "getInstance");
+                                if (mgr != null) {
+                                    XposedHelpers.callMethod(mgr, "deinit");
+                                }
+                            }
+                            Object svc = XposedHelpers.getObjectField(param.thisObject, "a");
+                            if (svc != null) {
+                                Object callerTracker = XposedHelpers.getObjectField(svc, "e");
+                                if (callerTracker != null) {
+                                    XposedHelpers.callMethod(callerTracker, "remove", Binder.getCallingUid());
+                                }
+                                boolean boundNoti = XposedHelpers.getBooleanField(svc, "c");
+                                if (boundNoti) {
+                                    try {
+                                        Context ctx = (Context) XposedHelpers.callMethod(svc, "b");
+                                        Object conn = XposedHelpers.getObjectField(svc, "j");
+                                        if (ctx != null && conn != null) {
+                                            XposedHelpers.callMethod(ctx, "unbindService", conn);
+                                        }
+                                    } catch (Throwable ignored) {}
+                                }
+                            }
+                        } catch (Throwable t) {
+                            XposedLog.w(TAG, "Guarded l1.b.deinit error: " + t.getMessage());
+                        }
+                        return null;
+                    }
+                });
+                XposedLog.i(TAG, "Hooked l1.b.init -> true & guarded l1.b.deinit");
             }
         } catch (Throwable t) {
-            XposedLog.w(TAG, "Failed to hook l1.b.init: " + t.getMessage());
+            XposedLog.w(TAG, "Failed to hook l1.b: " + t.getMessage());
         }
 
         try {
@@ -1352,6 +1463,42 @@ public class MdxServiceHooks {
         } catch (Throwable t) {
             XposedLog.w(TAG, "Failed to hook SemFloatingFeature in MDX: " + t.getMessage());
         }
+    }
+
+    private static Object ensureMirroringStateRepo(ClassLoader cl, Object manager) {
+        if (manager == null) {
+            return null;
+        }
+        try {
+            Object repo = XposedHelpers.getObjectField(manager, "e");
+            if (repo != null) {
+                return repo;
+            }
+            Class<?> sysInjClass = findClassSafe(cl, "com.samsung.android.mdx.windowslink.system.SystemInjection");
+            if (sysInjClass != null) {
+                repo = XposedHelpers.callStaticMethod(sysInjClass, "provideMirroringStateRepository");
+                if (repo != null) {
+                    XposedHelpers.setObjectField(manager, "e", repo);
+                }
+                return repo;
+            }
+        } catch (Throwable ignored) {}
+        return null;
+    }
+
+    private static void safelyClearContainers(Object manager) {
+        if (manager == null) {
+            return;
+        }
+        try {
+            Object holder = XposedHelpers.getObjectField(manager, "a");
+            if (holder != null) {
+                Object map = XposedHelpers.getObjectField(holder, "a");
+                if (map instanceof HashMap) {
+                    ((HashMap<?, ?>) map).clear();
+                }
+            }
+        } catch (Throwable ignored) {}
     }
 
     private static Class<?> findClassSafe(ClassLoader cl, String... classNames) {

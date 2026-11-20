@@ -319,7 +319,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).resolve().parent.parent / "build" / "PhoneLinkMagisk-v2.0.0.zip",
+        default=Path(__file__).resolve().parent.parent / "build" / "PhoneLinkMagisk-v2.1.0.zip",
         help="Path for destination flashable ZIP",
     )
     parser.add_argument(
@@ -351,7 +351,7 @@ def main():
     summary = package_zip(staging_dir, args.output.resolve())
 
     # Also place a copy in magisk_module for convenience
-    copy_dest = src_dir / "PhoneLinkMagisk-v2.0.0.zip"
+    copy_dest = src_dir / "PhoneLinkMagisk-v2.1.0.zip"
     if copy_dest != args.output.resolve():
         shutil.copy2(args.output.resolve(), copy_dest)
         print(f"[+] Placed convenience copy at: {copy_dest}")

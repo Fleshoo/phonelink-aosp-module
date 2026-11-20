@@ -732,8 +732,8 @@ def build_apk():
         "--manifest", str(manifest_src),
         "--min-sdk-version", "28",
         "--target-sdk-version", "33",
-        "--version-code", "1",
-        "--version-name", "1.0.0",
+        "--version-code", "210",
+        "--version-name", "2.1.0",
         "-o", str(skeleton_apk),
         str(compiled_res),
         "--auto-add-overlay"

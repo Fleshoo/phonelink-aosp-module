@@ -1,6 +1,6 @@
 id=phonelink_module
 name=Samsung Link to Windows (Phone Link) Port
-version=v2.0.0
-versionCode=200
+version=v2.1.0
+versionCode=210
 author=Teamwork
 description=Enables Microsoft Link to Windows (Phone Link) on Xiaomi Mi 9 (Android 16 AOSP) with full Phone Screen mirroring, remote input control, priv-app permissions, and power exemptions.
